@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from library.models import Account
+from library.models import Account, Loan
 
 # Create your views here.
 def home(request):
@@ -31,3 +31,13 @@ def logout(request):
             del request.session['is_student']
     
     return redirect('login')
+
+def loan_history(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    
+    loan_list = Loan.objects.all()
+    loan_list = Loan.objects.prefetch_related('student')
+    loan_list = Loan.objects.prefetch_related('book')
+
+    return render(request, 'library/loan/loan_history.html', {'loan_list': loan_list})
