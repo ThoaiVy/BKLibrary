@@ -1,0 +1,68 @@
+{% extends 'admin_sidebar.html' %}
+{% load static %}
+{% block title %} Kho sách {% endblock %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col">
+    <div class="sm:mx-0.5 lg:mx-0.5">
+        <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+                <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                    <div class="text-2xl text-blue-600 uppercase font-bold">Cập nhật danh mục</div>
+                </div>
+                <form method="post" name="edit" onsubmit="return validateForm()"> {% csrf_token %}
+                    <div class="flex flex-row w-[100%]">
+                        <div class="w-[50%] flex flex-col ml-2 my-2">
+                            <label for="name" class="text-base font-medium mb-1">Tên danh mục: </label>
+                            <input type="text" name="name" id="name" placeholder="Nhập tên danh mục" class="rounded-md px-3 py-2 mb-1" value="{{category.name}}" onkeyup="checkCategoryName()">
+                            <span class="text-red-500 font-medium text-xs nameError"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row justify-end">
+                        <input type="submit" value="Cập nhật" class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">
+                        <a href="javascript:history.back()" class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    {% if alert %}
+    alert("Category is edited successfully.");
+    document.location = "/view_categories";
+    {% endif %}
+
+    let isValidForm = true;
+    function validateForm() {
+        const name = document.forms["edit"]["name"].value;
+        if (name === "") {
+            document.querySelector(".nameError").innerHTML = "Vui lòng điền vào mục này";
+            isValidForm = false;
+        }
+        return isValidForm;
+    }
+    function checkCategoryName() {
+        const categoryName = document.forms["edit"]["name"].value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/check_category_name/' + encodeURIComponent(categoryName), true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.is_taken) {
+                    document.querySelector(".nameError").innerHTML = "Danh mục đã tồn tại";
+                    isValidForm = false;
+                } else {
+                    document.querySelector(".nameError").innerHTML = "";
+                    isValidForm = true;
+                }
+            }
+        };
+        xhr.send();
+    }
+</script>
+{% endblock %}

@@ -18,7 +18,7 @@ class Book(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
 class Faculty(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=3,primary_key=True)
     name = models.CharField(max_length=100)
 
 class StudentClass(models.Model):
@@ -27,7 +27,7 @@ class StudentClass(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.SET_NULL, null=True)
 
 class Student(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=10,primary_key=True)
     name = models.CharField(max_length=100)
     studentClass = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, null=True)
     account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)

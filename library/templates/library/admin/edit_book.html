@@ -1,0 +1,97 @@
+{% extends 'admin_sidebar.html' %}
+{% load static %}
+{% block title %} Kho sách {% endblock %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col">
+    <div class="sm:mx-0.5 lg:mx-0.5">
+        <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+                <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                    <div class="text-2xl text-blue-600 uppercase font-bold">Cập nhật sách</div>
+                </div>
+                <form method="post" name="update" onsubmit="return validateForm()"> {% csrf_token %}
+                    <div class="flex flex-row w-[100%]">
+                        <div class="w-[50%] flex flex-col mr-2 my-2">
+                            <label for="bookId" class="text-base font-medium mb-1">Mã sách: </label>
+                            <input type="text" name="bookId" id="bookId" class="rounded-md px-3 py-2 mb-1"
+                                value="{{book.id}}" readonly>
+                            <span class="text-red-500 font-medium text-xs bookIdError"></span>
+                        </div>
+                        <div class="w-[50%] flex flex-col ml-2 my-2">
+                            <label for="name" class="text-base font-medium mb-1">Tên sách: </label>
+                            <input type="text" name="name" id="name" placeholder="Nhập tên sách"
+                                class="rounded-md px-3 py-2 mb-1" value="{{book.name}}">
+                            <span class="text-red-500 font-medium text-xs nameError"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row w-[100%]">
+                        <div class="w-[50%] flex flex-col mr-2 my-2">
+                            <label for="author" class="text-base font-medium mb-1">Tác giả: </label>
+                            <input type="text" name="author" id="author" placeholder="Nhập tên tác giả"
+                                class="rounded-md px-3 py-2 mb-1" value="{{book.author}}">
+                            <span class="text-red-500 font-medium text-xs authorError"></span>
+                        </div>
+                        <div class="w-[50%] flex flex-col ml-2 my-2">
+                            <label for="author" class="text-base font-medium mb-1">Số lượng: </label>
+                            <input type="text" name="quantity" id="quantity" placeholder="Nhập số lượng"
+                                class="rounded-md px-3 py-2 mb-1" value="{{book.quantity}}">
+                            <span class="text-red-500 font-medium text-xs quantityError"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row w-[100%]">
+                        <div class="w-[50%] flex flex-col mr-2 my-2">
+                            <label for="category" class="text-base font-medium mb-1">Danh mục: </label>
+                            <select id="category" name="category" class="w-full rounded-md px-3 py-2 mb-1">
+                                {% for category in categories %}
+                                {% if category.id == book.category %}
+                                <option value="{{category.id}}" selected>{{category.name}}</option>
+                                {% else %}
+                                <option value="{{category.id}}">{{category.name}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                            <span class="text-red-500 font-medium text-xs categoryError"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row justify-end">
+                        <input type="submit" value="Cập nhật"
+                            class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">
+                        <a href="javascript:history.back()"
+                            class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay
+                            lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    {% if alert %}
+    alert("Book is edited successfully.");
+    document.location = "/view_books";
+    {% endif %}
+
+    function validateForm() {
+        const listInput = document.querySelectorAll(".input-text");
+        let isValidForm = true;
+        listInput.forEach(input => {
+            if (input.value.trim() === "") {
+                isValidForm = false;
+                input.nextElementSibling.innerHTML = "Vui lòng nhập vào trường này";
+            }
+        });
+        const quantity = document.forms["add"]["quantity"].value;
+        if (isNaN(quantity)) {
+            const quantityError = document.querySelector(".quantityError");
+            quantityError.innerHTML = "Vui lòng nhập vào kiểu số";
+            console.log(quantityError);
+            isValidForm = false;
+        }
+        return isValidForm;
+    }
+</script>
+{% endblock %}

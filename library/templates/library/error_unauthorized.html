@@ -1,0 +1,38 @@
+{% load static %}
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Error Unauthorized{% endblock %}</title>
+    {% block css %}
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        .full-screen-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        .full-screen-image img {
+            width: 800px;
+            min-width: 400px;
+            object-fit: cover;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    <div class="full-screen-image">
+        <img src="../../static/error_401.jpg" alt="Full Screen Image">
+    </div>
+</body>
+</html>
