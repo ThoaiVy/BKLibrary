@@ -6,7 +6,7 @@ from .forms import LoanBookForm
 from .forms import UploadFileForm
 from django.contrib.auth import authenticate, login, logout
 from . import forms, models
-from datetime import date
+from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.core.files.storage import FileSystemStorage
@@ -276,15 +276,15 @@ def add_loan(request):
         return redirect('error_unauthorized')
     
     if request.method == "POST":
-        bookIds = request.POST.getlist('bookIds')
-        print(bookIds)
+        receivedBookIds = request.POST.get('bookIds')
+        bookIds = receivedBookIds.split(',')
+        print(bookIds);
         for bookId in bookIds:
             book = Book.objects.get(id=bookId)
             student = Student.objects.get(id=request.POST['studentId'])
-            borrow_date = request.POST['borrow_date']
-            return_date = request.POST['return_date']
-            due_date = request.POST['due_date']
-            loan = Loan.objects.create(book=book, student=student, borrow_date=borrow_date, return_date=return_date, due_date=due_date)
+            due_date = request.POST['dueDate']
+            borrow_date = datetime.now().strftime("%Y-%m-%d");
+            loan = Loan.objects.create(book=book, student=student, borrow_date=borrow_date, return_date=None, due_date=due_date)
             loan.save()
         alert = True
         return render(request, "add_loan.html", {'alert':alert})
@@ -292,6 +292,16 @@ def add_loan(request):
     students = Student.objects.all()
     return render(request, "add_loan.html", {'books':books, 'students':students})
 
+def return_loan(request, id):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+
+    loan = Loan.objects.get(id=id)
+    loan.return_date = datetime.now().strftime("%Y-%m-%d")
+    loan.save()
+    return redirect('view_loan_history')
 
 # Faculty
 def view_faculties(request):
@@ -471,11 +481,12 @@ def student_loan_history(request):
     if 'account' not in request.session:
         return redirect('login')
     
-    loan_list = Loan.objects.all()
-    loan_list = Loan.objects.prefetch_related('student')
-    loan_list = Loan.objects.prefetch_related('book')
+    student_id = request.session['account']
+    loan_list = Loan.objects.filter(student__id=student_id).prefetch_related('student', 'book')
 
-    return render(request, 'library/loan/loan_history.html', {'loan_list': loan_list})
+
+    return render(request, 'student_view_loan.html', {'loan_list': loan_list, 'today': date.today()})
+
 
 def student_view_books(request, categoryId=None):
     if 'account' not in request.session:
@@ -488,6 +499,7 @@ def student_view_books(request, categoryId=None):
     else:
         books = Book.objects.all()
     categories = Category.objects.all()
+
     return render(request, "student_view_books.html", {'books':books, 'categories':categories})
 
 def student_view_categories(request):

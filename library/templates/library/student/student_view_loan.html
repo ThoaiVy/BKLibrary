@@ -1,6 +1,7 @@
-{% extends 'library/base.html' %} {% block content %}
+{% extends 'library/base.html' %}
+{% load static %} {% block content %}
 <!-- Include the sidebar -->
-{% include 'library/sidebar.html' %}
+{% include 'student_sidebar.html' %}
 
 <div class="flex-1 w-[80%] bg-blue-100">
     <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
@@ -10,8 +11,6 @@
                     <div class="text-2xl text-blue-600 uppercase font-bold">
                         Lịch sử mượn trả sách
                     </div>
-                    <a href="" class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Thêm
-                        sách mượn</a>
                 </div>
 
                 <form class="flex flex-row justify-between my-4">
@@ -21,21 +20,16 @@
                                 d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <input type="text" name="searchStudentId" id="search" placeholder="Nhập MSSV"
+                        <input type="text" name="searchStudentId" id="search" placeholder="Nhập mã sách"
                             class="flex-1 bg-white ml-2 outline-none" value="" />
                     </div>
                     <div class="flex items-center justify-center">
                         <span class="mr-2 font-normal text-base">Tình trạng: </span>
-                        <select class="min-w-[200px] rounded-md px-3 py-2" name="loanStatus">
+                        <select class="min-w-[200px] rounded-md px-3 py-2" name="loanStatus" id="filter">
                             <option value="0" selected>Tất cả</option>
                             <option value="1">Sách chưa trả</option>
-                            <option value="2">Sách trả quá hạn</option>
-                            <option value="3">Sách trả đúng hạn</option>
+                            <option value="2">Sách đã trả</option>
                         </select>
-                        <button type="submit"
-                            class="px-3 py-2 ml-5 font-medium bg-blue-500 text-white rounded-lg hover:cursor-pointer hover:bg-blue-600">
-                            Lọc
-                        </button>
                     </div>
                 </form>
                 {% if loan_list %}
@@ -47,9 +41,6 @@
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
                                 Mã sách
-                            </th>
-                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                MSSV
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
                                 Ngày mượn
@@ -64,7 +55,7 @@
                     </thead>
                     <tbody>
                         {% for loan in loan_list %}
-                        {% if forloop.counter|divisibleby:2 %}
+                        {% if not forloop.counter|divisibleby:2 %}
                         <tr class="bg-blue-200 border-b">
                             {% else %}
                         <tr class="bg-white border-b">
@@ -75,11 +66,6 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
                                 {{ loan.book_id }}
                             </td>
-                            {% if not request.session.is_student %}
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
-                                {{ loan.student_id }}
-                            </td>
-                            {% endif %}
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
                                 {{ loan.borrow_date }}
                             </td>
@@ -90,10 +76,13 @@
                                 {% if loan.return_date %}
                                 {{ loan.return_date }}
                                 {% else %}
-                                <a href=""
-                                    class="px-2 py-1 text-sm font-medium bg-blue-400 text-white rounded-lg hover:cursor-pointer hover:bg-blue-500">Trả
-                                    sách</a>
-                                {% endif %}
+                                {% if today > loan.due_date %}
+                                <a class="px-2 py-1 text-sm font-medium bg-red-400 text-white rounded-lg">Quá hạn</span>
+                                    {% else %}
+                                    <a class="px-2 py-1 text-sm font-medium bg-blue-400 text-white rounded-lg">Chưa
+                                        trả</a>
+                                    {% endif %}
+                                    {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -106,5 +95,53 @@
         </div>
     </div>
 </div>
+{% block js %}
+<script>
+    const handleSearchAndFilter = () => {
+        const search = document.getElementById('search');
+        const filter = document.getElementById('filter');
 
+        search.addEventListener('keyup', () => {
+            searchAndFilterLogic(search, filter);
+        })
+        filter.addEventListener('change', () => {
+            searchAndFilterLogic(search, filter);
+        })
+    }
+    handleSearchAndFilter();
+
+    function searchAndFilterLogic(s, f) {
+        const searchString = s.value.toLowerCase();
+        const table = document.getElementsByTagName('tbody')[0];
+        const rows = table.getElementsByTagName('tr');
+        let index = 1;
+        Array.from(rows).forEach((row) => {
+            const tdIndex = row.getElementsByTagName('td')[0];
+            const tdBookId = row.getElementsByTagName('td')[1];
+            const tdReturnDate = row.getElementsByTagName('td')[4];
+
+            const textBookIdValue = tdBookId.textContent || tdBookId.innerHTML;
+            const textReturnDate = tdReturnDate.textContent || tdReturnDate.innerHTML;
+
+            let isReturn = !isNaN(Date.parse(textReturnDate)) ? "2" : "1";
+            const filterValue = f.value;
+            isReturn = f.value === "0" ? "0" : isReturn;
+
+            if (textBookIdValue.toLowerCase().indexOf(searchString) > -1 && isReturn == filterValue) {
+                row.style.display = '';
+                tdIndex.textContent = (index++).toString();
+                if (index % 2 === 0) {
+                    row.classList.remove('bg-white');
+                    row.classList.add('bg-blue-200');
+                } else {
+                    row.classList.remove('bg-blue-200');
+                    row.classList.add('bg-white');
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        })
+    }
+</script>
+{% endblock %}
 {% endblock %}

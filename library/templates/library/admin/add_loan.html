@@ -2,8 +2,10 @@
 {% load static %}
 {% block title %} Kho sách {% endblock %}
 {% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/multi-select.css' %}">
 {% endblock %}
 {% block content %}
+
 <div class="flex flex-col">
     <div class="inline-block min-w-full sm:px-6 lg:px-8">
         <div class="overflow-hidden h-[100vh]">
@@ -14,12 +16,14 @@
                 <div class="flex flex-row w-[100%]">
                     <div class="w-[50%] mr-2 flex flex-col my-2">
                         <label for="studentId" class="text-base font-medium mb-1">Mã số sinh viên: </label>
-                        <input type="text" name="studentId" id="studentId" placeholder="Nhập mã số sinh viên" class="rounded-md px-3 py-2 mb-1" onBlur="validateId()">
+                        <input type="text" name="studentId" id="studentId" placeholder="Nhập mã số sinh viên"
+                            class="rounded-md px-3 py-2 mb-1" onBlur="validateId()">
                         <span class="text-red-500 font-medium text-xs" id="studentIdError"></span>
                     </div>
                     <div class="w-[50%] mr-2 flex flex-col my-2">
                         <label for="dueDate" class="text-base font-medium mb-1">Hạn trả sách: </label>
-                        <input type="date" name="dueDate" id="dueDate" class="rounded-md px-3 mb-1" style="height: 40px" onblur="validateDate()">
+                        <input type="date" name="dueDate" id="dueDate" class="rounded-md px-3 mb-1" style="height: 40px"
+                            onblur="validateDate()">
                         <span class="text-red-500 font-medium text-xs" id="dueError"></span>
                     </div>
                 </div>
@@ -36,8 +40,11 @@
                 </div>
                 <input type="text" name="bookIds" id="bookIds" class="hidden" value="">
                 <div class="flex flex-row justify-end mt-4">
-                    <input type="submit" value="Thêm sách mượn" class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">
-                    <a href="" class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay lại</a>
+                    <input type="submit" value="Thêm sách mượn"
+                        class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">
+                    <a href=""
+                        class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay
+                        lại</a>
                 </div>
             </form>
         </div>
@@ -46,7 +53,12 @@
 {% endblock %}
 
 {% block js %}
+<script src="{% static 'js/multi-select.js' %}"></script>
 <script>
+    {% if alert %}
+    alert("Loan is added successfully.");
+    document.location = "/view_loan_history";
+    {% endif %}
     var selected = new MultiSelectTag('selection')
     let isValidId = false;
     function handleSubmit(event) {
@@ -54,14 +66,17 @@
         var selectedValues = selected.getValues();
         var isValidDate = validateDate();
         validateId();
-        console.log(selectedValues, isValidId, isValidDate);
+        console.log(selectedValues);
+        console.log(isValidId);
+        console.log(isValidDate);
+
         if (selectedValues.length > 0 && isValidId && isValidDate) {
             document.getElementById('bookIdsError').innerHTML = '';
-            var concatenatedValues = selectedValues.map(function(item) {
+            var concatenatedValues = selectedValues.map(function (item) {
                 return item.value;
             }).join(',');
             document.getElementById('bookIds').value = concatenatedValues;
-            console.log(concatenatedValues)
+            console.log('submitted');
             event.currentTarget.submit();
             return true;
         }
@@ -74,26 +89,25 @@
     }
     function validateId() {
         const id = document.getElementById("studentId").value;
-        console.log(id)
         if (id === '') {
             document.querySelector('#studentIdError').innerHTML = 'Vui lòng nhập trường này';
             isValidId = false;
         }
         else {
             const xhr = new XMLHttpRequest();
-            xhr.open("GET", "check_student_id/" + id, true);
+            xhr.open("GET", "/check_student_id/" + id, true);
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                const response = JSON.parse(xhr.responseText);
-                if (response.is_taken) {
-                    document.querySelector("#studentIdError").innerHTML = "";
-                    isValidForm = true;
-                } else {
-                    document.querySelector("#studentIdError").innerHTML = "Mã số sinh viên không tồn tại";
-                    isValidForm = false;
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.is_taken) {
+                        document.querySelector("#studentIdError").innerHTML = "";
+                        isValidId = true;
+                    } else {
+                        document.querySelector("#studentIdError").innerHTML = "Mã số sinh viên không tồn tại";
+                        isValidId = false;
+                    }
                 }
-            }
             }
             xhr.send();
         }
