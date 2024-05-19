@@ -7,13 +7,14 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
-    path('loan/', views.student_loan_history, name='loan'),
+    path('student_view_loan/', views.student_loan_history, name='student_view_loan'),
     path("student_view_categories/", views.student_view_categories, name="student_view_categories"),
     path('student_view_books/', views.student_view_books, name='student_view_books'),
     path('student_view_books/<int:categoryId>/', views.student_view_books, name='student_view_books'),
     
     path("", views.index, name="index"),
     path("add_book/", views.add_book, name="add_book"),
+    path("add_loan/", views.add_loan, name="add_loan"),
     path("view_books/", views.view_books, name="view_books"),
     path('view_books/<int:categoryId>/', views.view_books, name='view_books'),
     path("delete_book/<int:id>/", views.delete_book, name="delete_book"),
@@ -43,6 +44,7 @@ urlpatterns = [
     path("view_loan_history/", views.view_loan_history, name="view_loan_history"),
     path("view_loan_history/<int:studentId>/", views.view_loan_history, name="view_loan_history"),
     path("add_loan/", views.add_loan, name="add_loan"),
+    path("return_loan/<int:id>", views.return_loan, name="return_loan"),
 
     path("delete_student/<int:id>/", views.delete_student, name="delete_student"),
 ]

@@ -11,7 +11,8 @@
                 <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
                     <div class="text-2xl text-blue-600 uppercase font-bold">Danh sách Sinh viên</div>
                     <button id="openModel"
-                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Cập nhật</button>
+                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Cập
+                        nhật</button>
                 </div>
                 <div class="flex flex-row justify-between my-4">
                     <div class="flex bg-white px-3 py-2 rounded-md w-[300px]">
@@ -95,19 +96,23 @@
     <div class="bg-white p-8 rounded shadow-lg w-1/2">
         <span class="close text-gray-500 hover:text-black cursor-pointer float-right text-2xl">&times;</span>
         <h2 class="text-xl font-bold mb-4">Cập nhật sinh viên</h2>
-        <form action="/upload_file_student/" method="post" enctype="multipart/form-data" class="flex flex-wrap flex-row justify-between items-center py-3 my-3">
+        <form action="/upload_file_student/" method="post" enctype="multipart/form-data"
+            class="flex flex-wrap flex-row justify-between items-center py-3 my-3">
             {% csrf_token %}
             <div class="flex flex-wrap items-center py-3 my-3">
                 <label for="file" class="block text-gray-700 w-[100px]">Chọn file:</label>
-                <input type="file" id="file" name="file" class="mt-1 border border-gray-300 rounded px-2 py-1 min-w-full" accept=".xlsx">
+                <input type="file" id="file" name="file"
+                    class="mt-1 border border-gray-300 rounded px-2 py-1 min-w-full" accept=".xlsx">
             </div>
             <div>
-                <button type="submit" class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải lên</button>
+                <button type="submit"
+                    class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải lên</button>
             </div>
         </form>
         <div class="flex flex-wrap items-center py-3 my-3">
             <label for="file" class="block text-gray-700 w-[100px]">Tải file mẫu:</label>
-            <a href="/download_sample_student/" class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải file mẫu</a>
+            <a href="/download_sample_student/"
+                class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải file mẫu</a>
         </div>
     </div>
 </div>
@@ -115,7 +120,7 @@
 
 {% block js %}
 <script>
-function getQueryParameter(name) {
+    function getQueryParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
@@ -184,13 +189,13 @@ function getQueryParameter(name) {
     var span = document.getElementsByClassName("close")[0];
 
     // When the user clicks the button, open the modal 
-    openModel.onclick = function() {
+    openModel.onclick = function () {
         modal.classList.remove("hidden");
         console.log('open');
     }
 
     // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
+    span.onclick = function () {
         modal.classList.add("hidden");
         console.log('close');
     }
