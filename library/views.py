@@ -510,3 +510,62 @@ def student_view_categories(request):
     
     categories = Category.objects.annotate(quantity=Count('book'))
     return render(request, "student_view_categories.html", {'categories': categories})
+
+def student_change_password(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == False:
+        return redirect('error_unauthorized')
+    
+    if request.method == "POST":
+        old_password = request.POST['oldPassword']
+        new_password = request.POST['newPassword']
+        confirm_password = request.POST['confirmPassword']
+        username = request.session['account']
+        account = Account.objects.get(username=username)
+        if account.password == old_password:
+            if new_password == confirm_password:
+                account.password = new_password
+                account.save()
+                alert = True
+                return render(request, "student_change_password.html", {'alert':alert, 'account':account})
+            else:
+                error_message = "Mật khẩu mới không khớp"
+                return render(request, "student_change_password.html", {'error_message':error_message, 'account':account})
+        else:
+            error_message = "Mật khẩu cũ không đúng"
+            return render(request, "student_change_password.html", {'error_message':error_message, 'account':account})
+
+    username = request.session['account']
+    account = Account.objects.get(username=username)
+    return render(request, "student_change_password.html", {'account':account})
+
+def change_password(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('student_change_password')
+    
+    if request.method == "POST":
+        old_password = request.POST['oldPassword']
+        new_password = request.POST['newPassword']
+        confirm_password = request.POST['confirmPassword']
+        username = request.session['account']
+        account = Account.objects.get(username=username)
+        if account.password == old_password:
+            if new_password == confirm_password:
+                account.password = new_password
+                account.save()
+                alert = True
+                return render(request, "change_password.html", {'alert':alert, 'account':account})
+            else:
+                error_message = "Mật khẩu mới không khớp"
+                return render(request, "change_password.html", {'error_message':error_message, 'account':account})
+        else:
+            error_message = "Mật khẩu cũ không đúng"
+            return render(request, "change_password.html", {'error_message':error_message, 'account':account})
+
+    username = request.session['account']
+    account = Account.objects.get(username=username)
+    return render(request, "change_password.html", {'account':account})
+    
