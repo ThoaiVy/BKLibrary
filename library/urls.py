@@ -11,6 +11,7 @@ urlpatterns = [
     path("student_view_categories/", views.student_view_categories, name="student_view_categories"),
     path('student_view_books/', views.student_view_books, name='student_view_books'),
     path('student_view_books/<int:categoryId>/', views.student_view_books, name='student_view_books'),
+    path('student_change_password/', views.student_change_password, name='student_change_password'),
     
     path("", views.index, name="index"),
     path("add_book/", views.add_book, name="add_book"),
@@ -47,4 +48,6 @@ urlpatterns = [
     path("return_loan/<int:id>", views.return_loan, name="return_loan"),
 
     path("delete_student/<int:id>/", views.delete_student, name="delete_student"),
+    path('change_password/', views.change_password, name='change_password'),
+
 ]
