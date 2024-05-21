@@ -153,6 +153,71 @@ def check_category_name(request, name):
     }
     return JsonResponse(data)
 
+# Account
+def view_accounts(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+    
+    accounts = Account.objects.all()
+    return render(request, "view_accounts.html", {'accounts':accounts})
+
+def upload_file_account(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+    
+    if request.method == 'POST' and request.FILES['file']:
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            fs = FileSystemStorage()
+            filename = fs.save(file.name, file)
+            file_path = fs.path(filename)
+            
+            try:
+                data = pd.read_excel(file_path)
+                for index, row in data.iterrows():
+                    account, created = Account.objects.update_or_create(
+                        username=row['username'],
+                        defaults={
+                            'password': row['password'],
+                            'is_student': False,
+                        }
+                    )
+                alert = "File imported successfully"
+            except Exception as e:
+                alert = f"Error processing file: {e}"
+
+            return redirect("/view_accounts")
+    else:
+        form = UploadFileForm()
+    return redirect("/view_accounts")
+
+def download_sample_account(request):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+    
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Data"
+
+    columns = ["username", "password"]
+    for col_num, column_title in enumerate(columns, 1):
+        cell = sheet.cell(row=1, column=col_num)
+        cell.value = column_title
+        cell.font = Font(bold=True)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=sample_account.xlsx'
+
+    workbook.save(response)
+    return response
+
 # Student
 # @login_required(login_url = '/admin_login')
 def view_students(request, classId=None):
@@ -209,10 +274,10 @@ def upload_file_student(request):
             except Exception as e:
                 alert = f"Error processing file: {e}"
 
-            return render(request, "/view_students")
+            return redirect("/view_students")
     else:
         form = UploadFileForm()
-    return render(request, "/view_students")
+    return redirect("/view_students")
 
 def download_sample_student(request):
     if 'account' not in request.session:
@@ -267,7 +332,20 @@ def view_loan_history(request, studentId=None):
         loans = Loan.objects.filter(student=Student.objects.get(id=studentId))
     else:
         loans = Loan.objects.all()
+    for loan in loans:
+        loan.bookIds = ', '.join(str(book.id) for book in loan.books.all())
+
     return render(request, "view_loan_history.html", {'loanList':loans})
+
+def detail_loan(request, id):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+    
+    loan = Loan.objects.get(id=id)
+    books = loan.books.all()
+    return render(request, "detail_loan.html", {'loan':loan, 'books':books})
 
 def add_loan(request):
     if 'account' not in request.session:
@@ -278,14 +356,14 @@ def add_loan(request):
     if request.method == "POST":
         receivedBookIds = request.POST.get('bookIds')
         bookIds = receivedBookIds.split(',')
-        print(bookIds);
-        for bookId in bookIds:
-            book = Book.objects.get(id=bookId)
-            student = Student.objects.get(id=request.POST['studentId'])
-            due_date = request.POST['dueDate']
-            borrow_date = datetime.now().strftime("%Y-%m-%d");
-            loan = Loan.objects.create(book=book, student=student, borrow_date=borrow_date, return_date=None, due_date=due_date)
-            loan.save()
+        print(bookIds)
+        student = Student.objects.get(id=request.POST['studentId'])
+        due_date = request.POST['dueDate']
+        borrow_date = datetime.now().strftime("%Y-%m-%d")
+        loan = Loan.objects.create(student=student, borrow_date=borrow_date, return_date=None, due_date=due_date)
+        books_to_add = Book.objects.filter(id__in=bookIds)  # List các id của các Book cần thêm
+        loan.books.add(*books_to_add)
+        loan.save()
         alert = True
         return render(request, "add_loan.html", {'alert':alert})
     books = Book.objects.all()
@@ -301,6 +379,22 @@ def return_loan(request, id):
     loan = Loan.objects.get(id=id)
     loan.return_date = datetime.now().strftime("%Y-%m-%d")
     loan.save()
+    return redirect('view_loan_history')
+
+def renew_loan(request, id):
+    if 'account' not in request.session:
+        return redirect('login')
+    elif 'is_student' in request.session and request.session['is_student'] == True:
+        return redirect('error_unauthorized')
+
+    loan = Loan.objects.get(id=id)
+    loan.due_date = request.POST['dueDate']
+    loan.save()
+    return redirect('view_loan_history')
+
+def delete_loan(request, id):
+    loan = Loan.objects.get(id=id)
+    loan.delete()
     return redirect('view_loan_history')
 
 # Faculty

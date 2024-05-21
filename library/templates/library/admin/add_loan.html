@@ -42,7 +42,7 @@
                 <div class="flex flex-row justify-end mt-4">
                     <input type="submit" value="Thêm sách mượn"
                         class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">
-                    <a href=""
+                    <a href="/view_loan_history"
                         class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay
                         lại</a>
                 </div>
@@ -128,5 +128,10 @@
             return false;
         }
     }
+
+    var currentDate = new Date();
+    currentDate.setMonth(currentDate.getMonth() + 9);
+    var formattedDate = currentDate.toISOString().split('T')[0];
+    document.getElementById('dueDate').value = formattedDate;
 </script>
 {% endblock %}

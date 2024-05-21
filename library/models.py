@@ -39,7 +39,7 @@ class Librarian(models.Model):
     
 class Loan(models.Model):
     id = models.AutoField(primary_key=True)
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
+    books = models.ManyToManyField(Book)
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
     borrow_date = models.DateField(null=True, blank=True)
     return_date = models.DateField(null=True, blank=True)

@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('error_unauthorized/', views.error_unauthorized, name='error_unauthorized'),
 
-    path('', views.home, name='home'),
+    path('', views.login, name='login'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('student_view_loan/', views.student_loan_history, name='student_view_loan'),
@@ -13,6 +13,10 @@ urlpatterns = [
     path('student_view_books/<int:categoryId>/', views.student_view_books, name='student_view_books'),
     path('student_change_password/', views.student_change_password, name='student_change_password'),
     
+    path('view_accounts/', views.view_accounts, name='view_accounts'),
+    path("upload_file_account/", views.upload_file_account, name="upload_file_account"),
+    path("download_sample_account/", views.download_sample_account, name="download_sample_account"),
+
     path("", views.index, name="index"),
     path("add_book/", views.add_book, name="add_book"),
     path("add_loan/", views.add_loan, name="add_loan"),
@@ -45,7 +49,10 @@ urlpatterns = [
     path("view_loan_history/", views.view_loan_history, name="view_loan_history"),
     path("view_loan_history/<int:studentId>/", views.view_loan_history, name="view_loan_history"),
     path("add_loan/", views.add_loan, name="add_loan"),
+    path("detail_loan/<int:id>", views.detail_loan, name="detail_loan"),
     path("return_loan/<int:id>", views.return_loan, name="return_loan"),
+    path("renew_loan/<int:id>", views.renew_loan, name="renew_loan"),
+    path("delete_loan/<int:id>", views.delete_loan, name="delete_loan"),
 
     path("delete_student/<int:id>/", views.delete_student, name="delete_student"),
     path('change_password/', views.change_password, name='change_password'),
