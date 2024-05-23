@@ -1,0 +1,11 @@
+[
+  {
+    "model": "library.account",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "password": "admin",
+      "role": "IsAdmin"
+    }
+  }
+]

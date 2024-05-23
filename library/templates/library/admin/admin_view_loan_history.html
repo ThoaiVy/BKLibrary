@@ -1,27 +1,28 @@
-{% extends 'library/base.html' %}
-{% load static %} {% block content %}
-<!-- Include the sidebar -->
-{% include 'student_sidebar.html' %}
-
-<div class="flex-1 w-[80%] bg-blue-100">
+{% extends 'admin_sidebar.html' %}
+{% load static %}
+{% block title %} BKLibrary {% endblock %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col">
     <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
         <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
             <div class="overflow-hidden">
                 <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
-                    <div class="text-2xl text-blue-600 uppercase font-bold">
-                        Lịch sử mượn trả sách
-                    </div>
+                    <div class="text-2xl text-blue-600 uppercase font-bold">Lịch sử mượn trả sách</div>
+                    <a href="/add_loan/"
+                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Thêm sách
+                        mượn</a>
                 </div>
-
-                <form class="flex flex-row justify-between my-4">
+                <div class="flex flex-row justify-between my-4">
                     <div class="flex bg-white px-3 py-2 rounded-md w-[300px]">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray" class="w-6 h-6">
                             <path fill-rule="evenodd"
                                 d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <input type="text" name="searchStudentId" id="search" placeholder="Nhập mã sách"
-                            class="flex-1 bg-white ml-2 outline-none" value="" />
+                        <input type="text" name="search" id="search" placeholder="Nhập mã sách hoặc sinh viên"
+                            class="flex-1 bg-white ml-2 outline-none">
                     </div>
                     <div class="flex items-center justify-center">
                         <span class="mr-2 font-normal text-base">Tình trạng: </span>
@@ -31,8 +32,7 @@
                             <option value="2">Sách đã trả</option>
                         </select>
                     </div>
-                </form>
-                {% if loan_list %}
+                </div>
                 <table class="min-w-full">
                     <thead class="bg-white border-b">
                         <tr>
@@ -41,6 +41,9 @@
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
                                 Mã sách
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                MSSV
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
                                 Ngày mượn
@@ -54,7 +57,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for loan in loan_list %}
+                        {% for loan in loanList %}
                         {% if not forloop.counter|divisibleby:2 %}
                         <tr class="bg-blue-200 border-b">
                             {% else %}
@@ -63,38 +66,39 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
                                 {{ forloop.counter }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
                                 {{ loan.bookIds }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
-                                {{ loan.borrow_date }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
-                                {{ loan.due_date }}
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ loan.student.id }}
                             </td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
-                                {% if loan.return_date %}
-                                {{ loan.return_date }}
-                                {% else %}
-                                {% if today > loan.due_date %}
-                                <a class="px-2 py-1 text-sm font-medium bg-red-400 text-white rounded-lg">Quá hạn</span>
-                                    {% else %}
-                                    <a class="px-2 py-1 text-sm font-medium bg-blue-400 text-white rounded-lg">Chưa
-                                        trả</a>
-                                    {% endif %}
-                                    {% endif %}
+                                {{ loan.borrow_date }}
                             </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ loan.due_date }}
+                            </td>
+                            {% if loan.return_date == None %}
+                            <td class="text-sm text-red-500 font-bold px-6 py-4 whitespace-nowrap text-center">
+                                Chưa trả
+                            </td>
+                            {% else %}
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ loan.return_date }}
+                            </td>
+                            
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% else %}
-                <div class="text-xl text-blue-400 font-bold">Danh sách trống</div>
-                {% endif %}
+
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
 {% block js %}
 <script>
     const handleSearchAndFilter = () => {
@@ -118,16 +122,18 @@
         Array.from(rows).forEach((row) => {
             const tdIndex = row.getElementsByTagName('td')[0];
             const tdBookId = row.getElementsByTagName('td')[1];
-            const tdReturnDate = row.getElementsByTagName('td')[4];
+            const tdStudentId = row.getElementsByTagName('td')[2];
+            const tdReturnDate = row.getElementsByTagName('td')[5];
 
             const textBookIdValue = tdBookId.textContent || tdBookId.innerHTML;
+            const textStudentIdValue = tdStudentId.textContent || tdStudentId.innerHTML;
             const textReturnDate = tdReturnDate.textContent || tdReturnDate.innerHTML;
 
             let isReturn = !isNaN(Date.parse(textReturnDate)) ? "2" : "1";
             const filterValue = f.value;
             isReturn = f.value === "0" ? "0" : isReturn;
 
-            if (textBookIdValue.toLowerCase().indexOf(searchString) > -1 && isReturn == filterValue) {
+            if ((textBookIdValue.toLowerCase().indexOf(searchString) > -1 || textStudentIdValue.toLowerCase().indexOf(searchString) > -1) && isReturn == filterValue) {
                 row.style.display = '';
                 tdIndex.textContent = (index++).toString();
                 if (index % 2 === 0) {
@@ -143,5 +149,4 @@
         })
     }
 </script>
-{% endblock %}
 {% endblock %}

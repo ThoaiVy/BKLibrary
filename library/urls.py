@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('error_unauthorized/', views.error_unauthorized, name='error_unauthorized'),
+    path('error_404/', views.error_404, name='error_404'),
+    path('error_500/', views.error_500, name='error_500'),
 
     path('', views.login, name='login'),
     path('login/', views.login, name='login'),
@@ -12,10 +13,6 @@ urlpatterns = [
     path('student_view_books/', views.student_view_books, name='student_view_books'),
     path('student_view_books/<int:categoryId>/', views.student_view_books, name='student_view_books'),
     path('student_change_password/', views.student_change_password, name='student_change_password'),
-    
-    path('view_accounts/', views.view_accounts, name='view_accounts'),
-    path("upload_file_account/", views.upload_file_account, name="upload_file_account"),
-    path("download_sample_account/", views.download_sample_account, name="download_sample_account"),
 
     path("", views.index, name="index"),
     path("add_book/", views.add_book, name="add_book"),
@@ -57,4 +54,16 @@ urlpatterns = [
     path("delete_student/<int:id>/", views.delete_student, name="delete_student"),
     path('change_password/', views.change_password, name='change_password'),
 
+    path('admin_view_accounts/', views.admin_view_accounts, name='admin_view_accounts'),
+    path("admin_upload_file_account/", views.admin_upload_file_account, name="admin_upload_file_account"),
+    path("admin_download_sample_account/", views.admin_download_sample_account, name="admin_download_sample_account"),
+    path('admin_reset_password_account/<int:id>', views.admin_reset_password_account, name='admin_reset_password_account'),
+    path('admin_delete_account/<int:id>', views.admin_delete_account, name='admin_delete_account'),
+
+    path('admin_view_loan_history/', views.admin_view_loan_history, name='admin_view_loan_history'),
+    path('admin_view_logs/', views.admin_view_logs, name='admin_view_logs'),
+    
+    path('admin_change_password/', views.admin_change_password, name='admin_change_password'),
+
+    path('resetRole/', views.resetRole, name='resetRole'),
 ]
