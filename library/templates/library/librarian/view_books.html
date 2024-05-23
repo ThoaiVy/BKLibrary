@@ -1,18 +1,18 @@
-{% extends 'admin_sidebar.html' %}
+{% extends 'librarian_sidebar.html' %}
 {% load static %}
-{% block title %} Kho sách {% endblock %}
+{% block title %} BKLibrary {% endblock %}
 {% block css %}
 {% endblock %}
 {% block content %}
-<div class="flex flex-col">
+<div class="flex flex-row w-[100wh] h-[100vh] bg-blue-100">
     <div class="flex-1 overflow-x-auto sm:mx-0.5 lg:mx-0.5">
         <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
             <div class="overflow-hidden">
-                <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
-                    <div class="text-2xl text-blue-600 uppercase font-bold">Danh sách Sinh viên</div>
-                    <button id="openModel"
-                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Cập
-                        nhật</button>
+                <div class="flex flex-row justify-between py-3 my-3 border-b-[2px] border-blue-400">
+                    <div class="text-2xl text-blue-600 uppercase font-bold">Kho sách</div>
+                    <a href="/add_book/"
+                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Thêm
+                        sách mới</a>
                 </div>
                 <div class="flex flex-row justify-between my-4">
                     <div class="flex bg-white px-3 py-2 rounded-md w-[300px]">
@@ -21,15 +21,15 @@
                                 d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <input type="text" name="search" id="search" placeholder="Nhập mã hoặc tên sinh viên"
+                        <input type="text" name="search" id="search" placeholder="Nhập mã hoặc tên sách"
                             class="flex-1 bg-white ml-2 outline-none">
                     </div>
                     <div class="flex items-center justify-center filter">
                         <span class="mr-2 font-normal text-base">Lọc: </span>
                         <select class="min-w-[200px] rounded-md px-3 py-2" id="filter">
                             <option value="">Tất cả</option>
-                            {% for class in classes %}
-                            <option value="{{ class.name }}">{{ class.name }}</option>
+                            {% for category in categories %}
+                            <option value="{{ category.name }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -38,46 +38,69 @@
                     <thead class="bg-white border-b">
                         <tr>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                STT
+                                #
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                Mã sinh viên
+                                Mã sách
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                Tên sinh viên
+                                Tên sách
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                Tên lớp
+                                Tác giả
                             </th>
                             <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
-                                Action
+                                Danh mục
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Số lượng
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Số lượng còn lại
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Thao tác
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for student in students%}
+                        {% for book in books %}
                         {% if forloop.counter0|divisibleby:2 %}
                         <tr class="bg-blue-200 border-b">
                             {% else %}
                         <tr class="bg-white border-b">
                             {% endif %}
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
+                                {{forloop.counter}}</td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
-                                {{forloop.counter}}
+                                {{ book.id }}
                             </td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
-                                {{ student.id }}
+                                {{ book.name }}
                             </td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
-                                {{ student.name }}
+                                {{ book.author }}
                             </td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
-                                {{ student.studentClass.name }}
+                                {{ book.category.name }}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ book.quantity }}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ book.rest }}
                             </td>
                             <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
                                 <ul class="flex justify-evenly text-base">
                                     <li>
-                                        <a href="/loan/{{ student.id }}/">
-                                            <i class="view-icon fa-regular fa-eye"></i>
+                                        <a href="/edit_book/{{book.id}}/">
+                                            <i class="view-icon fa-regular fa-pen-to-square"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/delete_book/{{book.id}}/" class="action-delete"
+                                            onclick="return confirm('Are you sure you want to delete this book?')">
+                                            <i class="view-icon fa-regular fa-trash-can"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -86,33 +109,9 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                <div class="flex flex-row justify-end mt-5 come-back">
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="myModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
-    <!-- Modal content -->
-    <div class="bg-white p-8 rounded shadow-lg w-1/2">
-        <span class="close text-gray-500 hover:text-black cursor-pointer float-right text-2xl">&times;</span>
-        <h2 class="text-xl font-bold mb-4">Cập nhật sinh viên</h2>
-        <form action="/upload_file_student/" method="post" enctype="multipart/form-data"
-            class="flex flex-wrap flex-row justify-between items-center py-3 my-3">
-            {% csrf_token %}
-            <div class="flex flex-wrap items-center py-3 my-3">
-                <label for="file" class="block text-gray-700 w-[100px]">Chọn file:</label>
-                <input type="file" id="file" name="file"
-                    class="mt-1 border border-gray-300 rounded px-2 py-1 min-w-full" accept=".xlsx">
-            </div>
-            <div>
-                <button type="submit"
-                    class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải lên</button>
-            </div>
-        </form>
-        <div class="flex flex-wrap items-center py-3 my-3">
-            <label for="file" class="block text-gray-700 w-[100px]">Tải file mẫu:</label>
-            <a href="/download_sample_student/"
-                class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải file mẫu</a>
         </div>
     </div>
 </div>
@@ -157,14 +156,14 @@
             const tdIndex = row.getElementsByTagName('td')[0];
             const tdId = row.getElementsByTagName('td')[1];
             const tdName = row.getElementsByTagName('td')[2];
-            const tdClass = row.getElementsByTagName('td')[3];
+            const tdCategory = row.getElementsByTagName('td')[4];
 
             const textIdValue = tdId.textContent || tdId.innerHTML;
             const textNameValue = tdName.textContent || tdName.innerHTML;
-            const textClassValue = tdClass.textContent || tdClass.innerHTML;
+            const textCategoryValue = tdCategory.textContent || tdCategory.innerHTML;
 
             if ((textIdValue.toLowerCase().indexOf(searchString) > -1 || textNameValue.toLowerCase().indexOf(searchString) > -1)
-                && (textClassValue.toLowerCase().indexOf(f.value.toLowerCase()) > -1)) {
+                && (textCategoryValue.toLowerCase().indexOf(f.value.toLowerCase()) > -1)) {
                 row.style.display = '';
                 tdIndex.textContent = (index++).toString();
                 if (index % 2 === 0) {
@@ -178,26 +177,6 @@
                 row.style.display = 'none';
             }
         })
-    }
-
-    var modal = document.getElementById("myModal");
-
-    // Get the button that opens the modal
-    var openModel = document.getElementById("openModel");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-
-    // When the user clicks the button, open the modal 
-    openModel.onclick = function () {
-        modal.classList.remove("hidden");
-        console.log('open');
-    }
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function () {
-        modal.classList.add("hidden");
-        console.log('close');
     }
 </script>
 {% endblock %}

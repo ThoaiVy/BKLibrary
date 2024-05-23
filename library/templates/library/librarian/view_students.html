@@ -1,0 +1,203 @@
+{% extends 'librarian_sidebar.html' %}
+{% load static %}
+{% block title %} BKLibrary {% endblock %}
+{% block css %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col">
+    <div class="flex-1 overflow-x-auto sm:mx-0.5 lg:mx-0.5">
+        <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+                <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                    <div class="text-2xl text-blue-600 uppercase font-bold">Danh sách Sinh viên</div>
+                    <button id="openModel"
+                        class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Cập
+                        nhật</button>
+                </div>
+                <div class="flex flex-row justify-between my-4">
+                    <div class="flex bg-white px-3 py-2 rounded-md w-[300px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gray" class="w-6 h-6">
+                            <path fill-rule="evenodd"
+                                d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <input type="text" name="search" id="search" placeholder="Nhập mã hoặc tên sinh viên"
+                            class="flex-1 bg-white ml-2 outline-none">
+                    </div>
+                    <div class="flex items-center justify-center filter">
+                        <span class="mr-2 font-normal text-base">Lọc: </span>
+                        <select class="min-w-[200px] rounded-md px-3 py-2" id="filter">
+                            <option value="">Tất cả</option>
+                            {% for class in classes %}
+                            <option value="{{ class.name }}">{{ class.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <table class="min-w-full">
+                    <thead class="bg-white border-b">
+                        <tr>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                STT
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Mã sinh viên
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Tên sinh viên
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Tên lớp
+                            </th>
+                            <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students%}
+                        {% if forloop.counter0|divisibleby:2 %}
+                        <tr class="bg-blue-200 border-b">
+                            {% else %}
+                        <tr class="bg-white border-b">
+                            {% endif %}
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{forloop.counter}}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ student.id }}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ student.name }}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                {{ student.studentClass.name }}
+                            </td>
+                            <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                                <ul class="flex justify-evenly text-base">
+                                    <li>
+                                        <a href="/view_loan_history/{{ student.id }}/">
+                                            <i class="view-icon fa-regular fa-eye"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Modal content -->
+    <div class="bg-white p-8 rounded shadow-lg w-1/2">
+        <span class="close text-gray-500 hover:text-black cursor-pointer float-right text-2xl">&times;</span>
+        <h2 class="text-xl font-bold mb-4">Cập nhật sinh viên</h2>
+        <form action="/upload_file_student/" method="post" enctype="multipart/form-data"
+            class="flex flex-wrap flex-row justify-between items-center py-3 my-3">
+            {% csrf_token %}
+            <div class="flex flex-wrap items-center py-3 my-3">
+                <label for="file" class="block text-gray-700 w-[100px]">Chọn file:</label>
+                <input type="file" id="file" name="file"
+                    class="mt-1 border border-gray-300 rounded px-2 py-1 min-w-full" accept=".xlsx">
+            </div>
+            <div>
+                <button type="submit"
+                    class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải lên</button>
+            </div>
+        </form>
+        <div class="flex flex-wrap items-center py-3 my-3">
+            <label for="file" class="block text-gray-700 w-[100px]">Tải file mẫu:</label>
+            <a href="/download_sample_student/"
+                class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Tải file mẫu</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    function getQueryParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    if (getQueryParameter('mod') === 'filter') {
+        const filterElement = document.querySelector('.filter');
+        if (filterElement) {
+            filterElement.style.display = 'none';
+        }
+        const comeBackElement = document.querySelector('.come-back');
+        if (comeBackElement) {
+            comeBackElement.innerHTML = '<a href="javascript:history.back()" class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay lại</a>';
+        }
+    }
+    const handleSearchAndFilter = () => {
+        const search = document.getElementById('search');
+        const filter = document.getElementById('filter');
+
+        search.addEventListener('keyup', () => {
+            searchAndFilterLogic(search, filter);
+        })
+        filter.addEventListener('change', () => {
+            searchAndFilterLogic(search, filter);
+        })
+    }
+    handleSearchAndFilter();
+
+    function searchAndFilterLogic(s, f) {
+        const searchString = s.value.toLowerCase();
+        const table = document.getElementsByTagName('tbody')[0];
+        const rows = table.getElementsByTagName('tr');
+        let index = 1;
+
+        Array.from(rows).forEach((row) => {
+            const tdIndex = row.getElementsByTagName('td')[0];
+            const tdId = row.getElementsByTagName('td')[1];
+            const tdName = row.getElementsByTagName('td')[2];
+            const tdClass = row.getElementsByTagName('td')[3];
+
+            const textIdValue = tdId.textContent || tdId.innerHTML;
+            const textNameValue = tdName.textContent || tdName.innerHTML;
+            const textClassValue = tdClass.textContent || tdClass.innerHTML;
+
+            if ((textIdValue.toLowerCase().indexOf(searchString) > -1 || textNameValue.toLowerCase().indexOf(searchString) > -1)
+                && (textClassValue.toLowerCase().indexOf(f.value.toLowerCase()) > -1)) {
+                row.style.display = '';
+                tdIndex.textContent = (index++).toString();
+                if (index % 2 === 0) {
+                    row.classList.remove('bg-white');
+                    row.classList.add('bg-blue-200');
+                } else {
+                    row.classList.remove('bg-blue-200');
+                    row.classList.add('bg-white');
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        })
+    }
+
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var openModel = document.getElementById("openModel");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal 
+    openModel.onclick = function () {
+        modal.classList.remove("hidden");
+        console.log('open');
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.classList.add("hidden");
+        console.log('close');
+    }
+</script>
+{% endblock %}

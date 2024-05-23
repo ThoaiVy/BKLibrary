@@ -5,6 +5,17 @@ class Account(models.Model):
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=100)
     is_student = models.BooleanField(default=False)
+    ROLE_CHOICES = [
+        ('IsStudent', 'Student'),
+        ('IsLibrarian', 'Librarian'),
+        ('IsAdmin', 'Admin'),
+    ]
+
+    role = models.CharField(
+        max_length=100,
+        choices=ROLE_CHOICES,
+        default='IsStudent',
+    )
 
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
@@ -39,8 +50,14 @@ class Librarian(models.Model):
     
 class Loan(models.Model):
     id = models.AutoField(primary_key=True)
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
+    books = models.ManyToManyField(Book)
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
     borrow_date = models.DateField(null=True, blank=True)
     return_date = models.DateField(null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
+
+class Log(models.Model):
+    id = models.AutoField(primary_key=True)
+    action = models.CharField(max_length=255)
+    date = models.DateTimeField(auto_now_add=True)
+    account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)

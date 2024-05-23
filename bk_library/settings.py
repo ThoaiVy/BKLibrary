@@ -56,7 +56,7 @@ ROOT_URLCONF = 'bk_library.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['library/templates/library',"library/templates/library/admin","library/templates/library/student"],
+        'DIRS': ['library/templates/library',"library/templates/library/admin","library/templates/library/librarian","library/templates/library/student"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,6 +82,9 @@ DATABASES = {
     }
 }
 
+FIXTURE_DIRS = [
+    'fixtures',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

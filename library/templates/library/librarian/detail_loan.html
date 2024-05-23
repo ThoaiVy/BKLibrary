@@ -1,0 +1,213 @@
+{% extends 'librarian_sidebar.html' %}
+{% load static %}
+{% block title %} BKLibrary {% endblock %}
+{% block css %}
+{% endblock %}
+{% block content %}
+
+<div class="flex flex-col">
+    <div class="inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="overflow-hidden h-[100vh]">
+            <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                <div class="text-2xl text-blue-600 uppercase font-bold">Mượn sách</div>
+            </div>
+            <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                <div class="text-l text-blue-600 uppercase font-bold">Thông tin sinh viên</div>
+            </div>
+            <div class="flex flex-row w-[100%]">
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    <label class="text-base font-medium mb-1">Mã số sinh viên: </label>
+                    <input type="text" value="{{loan.student.id}}" class="rounded-md px-3 py-2 mb-1" disabled>
+                </div>
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    <label class="text-base font-medium mb-1">Tên sinh viên:</label>
+                    <input type="text" value="{{loan.student.name}}" class="rounded-md px-3 py-2 mb-1" disabled>
+                </div>
+            </div>
+            <div class="flex flex-row w-[100%]">
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    <label class="text-base font-medium mb-1">Ngày mượn: </label>
+                    <input type="text" value="{{loan.borrow_date}}" class="rounded-md px-3 py-2 mb-1" disabled>
+                </div>
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    <label class="text-base font-medium mb-1">Hạn trả:</label>
+                    <input type="text" value="{{loan.due_date}}" class="rounded-md px-3 py-2 mb-1" disabled>
+                </div>
+            </div>
+            <div class="flex flex-row w-[100%]">
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    {% if loan.return_date == None %}
+                    <label class="text-base font-medium mb-1">Thao tác: </label>
+                    <ul class="flex justify-center gap-3 text-base">
+                        <li>
+                            <button id="returnLoan"
+                                class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">Trả
+                                sách</button>
+                        </li>
+                        <li>
+                            <button id="openModel"
+                                class="text-center mr-2 py-2 px-4 min-w-[200px] uppercase text-white bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-md font-semibold">Gia
+                                hạn</button>
+                        </li>
+                    </ul>
+                    {% else %}
+                    <div class="w-[50%] mr-2 flex flex-col my-2">
+                        <label class="text-base font-medium mb-1">Ngày trả</label>
+                        <input type="text" value="{{loan.due_date}}" class="rounded-md px-3 py-2 mb-1" disabled>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="w-[50%] mr-2 flex flex-col my-2">
+                    <label class="text-base font-medium mb-1">Chi tiết:</label>
+                    <input type="text" class="rounded-md px-3 py-2 mb-1 text-red-500" id="detail" disabled>
+                </div>
+            </div>
+            <div class="flex flex-row justify-between items-center py-3 my-3 border-b-[2px] border-blue-400">
+                <div class="text-l text-blue-600 uppercase font-bold">Thông tin sách</div>
+            </div>
+            <table class="min-w-full">
+                <thead class="bg-white border-b">
+                    <tr>
+                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                            #
+                        </th>
+                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                            Mã sách
+                        </th>
+                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                            Tên sách
+                        </th>
+                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                            Tác giả
+                        </th>
+                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-center">
+                            Danh mục
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    {% if forloop.counter0|divisibleby:2 %}
+                    <tr class="bg-blue-200 border-b">
+                        {% else %}
+                    <tr class="bg-white border-b">
+                        {% endif %}
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-normal text-gray-900">
+                            {{forloop.counter}}</td>
+                        <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                            {{ book.id }}
+                        </td>
+                        <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                            {{ book.name }}
+                        </td>
+                        <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                            {{ book.author }}
+                        </td>
+                        <td class="text-sm text-gray-900 font-normal px-6 py-4 whitespace-nowrap text-center">
+                            {{ book.category.name }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="flex flex-row justify-end mt-4">
+                <a href="/view_loan_history"
+                    class="text-center ml-2 py-2 px-4 min-w-[200px] uppercase text-white bg-stone-400 hover:bg-stone-500 hover:cursor-pointer rounded-md font-semibold">Quay
+                    lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Modal content -->
+    <div class="bg-blue-100 p-8 rounded shadow-lg w-1/2">
+        <span class="close text-gray-500 hover:text-black cursor-pointer float-right text-2xl">&times;</span>
+        <h2 class="text-xl font-bold mb-4">Gia hạn trả sách</h2>
+        <form action="/renew_loan/{{loan.id}}" method="post">
+            {% csrf_token %}
+            <div class="flex flex-row w-[100%]">
+                <label for="dueDate" class="w-[50%] mr-2 flex flex-col my-2">Hạn trả sách: </label>
+                <input type="date" name="dueDate" id="dueDate"
+                    class="w-[50%] mr-2 flex flex-col my-2 rounded-md px-3 mb-1" style="height: 40px"
+                    onblur="validateDate()">
+                <span class="text-red-500 font-medium text-xs" id="dueError"></span>
+            </div>
+            <div>
+                <button type="submit" id="renewLoan"
+                    class="py-2 px-3 text-white bg-blue-500 hover:bg-blue-600 rounded-md font-semibold">Gia hạn</button>
+            </div>
+            </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    var detail = document.getElementById('detail');
+    var dueDate = new Date("{{ loan.due_date }}");
+    {% if loan.return_date %}
+    var returnDate = new Date("{{ loan.return_date }}");
+    if (returnDate > dueDate) {
+        detail.value = "Đã trả sách quá hạn";
+    } else {
+        detail.value = "Đã trả sách đúng hạn";
+    }
+    {% else %}
+    var days = Math.floor((new Date() - dueDate)/(24*60*60*1000));
+    if (days > 0) {
+        detail.value = `Đã quá hạn trả sách ${days} ngày`;
+    } else {
+        detail.value = "Chưa tới hạn trả sách";
+    }
+    {% endif %}
+
+    {% if loan.return_date == None %}
+    function validateDate() {
+        var dueDate = document.getElementById('dueDate').value;
+        var renewLoan = document.getElementById('renewLoan');
+        if (dueDate === '') {
+            document.getElementById('dueError').innerHTML = 'Vui lòng chọn hạn trả sách';
+            return false;
+        }
+        var selectedDate = new Date(dueDate);
+        var today = new Date();
+        if (selectedDate > today) {
+            document.getElementById('dueError').innerHTML = '';
+            renewLoan.disabled = false;
+            return true;
+        } else {
+            document.getElementById('dueError').innerHTML = 'Vui lòng chọn hạn trả sách lớn hơn ngày hiện tại';
+            renewLoan.disabled = true;
+            return false;
+        }
+    }
+
+    var returnLoan = document.getElementById('returnLoan');
+    returnLoan.onclick = function () {
+        window.location.href = "/return_loan/{{loan.id}}";
+    }
+
+    var modal = document.getElementById("myModal");
+    var openModel = document.getElementById("openModel");
+    var span = document.getElementsByClassName("close")[0];
+
+    openModel.onclick = function () {
+        modal.classList.remove("hidden");
+
+        var dueDateModel = new Date("{{ loan.due_date }}");
+        dueDateModel.setMonth(dueDateModel.getMonth() + 2);
+        var formattedDate = dueDateModel.toISOString().split('T')[0];
+        document.getElementById('dueDate').value = formattedDate;
+
+        document.getElementById('dueError').innerHTML = '';
+        document.getElementById('renewLoan').disabled = false;
+    }
+
+    span.onclick = function () {
+        modal.classList.add("hidden");
+        console.log('close');
+    }
+    {% endif %}
+</script>
+{% endblock %}
